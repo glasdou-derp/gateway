@@ -1,0 +1,13 @@
+services:
+
+  nats-server:
+    image: nats:2.10.16-alpine3.19
+    ports:
+      - 8222:8222
+
+  cache:
+    image: redis:7.2.5-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/data
