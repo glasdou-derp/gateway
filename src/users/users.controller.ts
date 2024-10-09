@@ -40,7 +40,6 @@ export class UsersController {
         throw new RpcException(error);
       }),
       tap(async (newUser) => {
-        // Update cache with the new user data
         await this.setNewUserCache(newUser);
         // Invalidate user list cache
         await this.invalidateUserListCache();
@@ -141,7 +140,7 @@ export class UsersController {
       }),
       tap(async (user: CurrentUser) => {
         await this.invalidateUserListCache();
-        await this.invalidateUserCache(user);
+        await this.setNewUserCache(user);
       }),
     );
   }
@@ -155,7 +154,7 @@ export class UsersController {
       }),
       tap(async (user: CurrentUser) => {
         await this.invalidateUserListCache();
-        await this.invalidateUserCache(user);
+        await this.setNewUserCache(user);
       }),
     );
   }
@@ -169,7 +168,7 @@ export class UsersController {
       }),
       tap(async (user: CurrentUser) => {
         await this.invalidateUserListCache();
-        await this.invalidateUserCache(user);
+        await this.setNewUserCache(user);
       }),
     );
   }
