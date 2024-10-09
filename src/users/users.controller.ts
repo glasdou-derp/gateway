@@ -25,6 +25,13 @@ export class UsersController {
     );
   }
 
+  @Get('clear_cache')
+  @Auth(Role.Admin)
+  async clearCache() {
+    await this.cacheManager.reset();
+    return { message: 'Cache cleared' };
+  }
+
   @Post()
   @Auth(Role.Admin)
   create(@Body() createUserDto: CreateUserDto, @User() currentUser: CurrentUser) {
@@ -134,8 +141,7 @@ export class UsersController {
       }),
       tap(async (user: CurrentUser) => {
         await this.invalidateUserListCache();
-
-        await this.setNewUserCache(user);
+        await this.invalidateUserCache(user);
       }),
     );
   }
@@ -149,7 +155,7 @@ export class UsersController {
       }),
       tap(async (user: CurrentUser) => {
         await this.invalidateUserListCache();
-        await this.setNewUserCache(user);
+        await this.invalidateUserCache(user);
       }),
     );
   }
@@ -163,7 +169,7 @@ export class UsersController {
       }),
       tap(async (user: CurrentUser) => {
         await this.invalidateUserListCache();
-        await this.setNewUserCache(user);
+        await this.invalidateUserCache(user);
       }),
     );
   }
