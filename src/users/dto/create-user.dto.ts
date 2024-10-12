@@ -13,7 +13,8 @@ export class CreateUserDto {
   @IsString()
   @MinLength(6)
   @IsStrongPassword()
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @IsEnum(Role, { each: true })
   @IsOptional()
