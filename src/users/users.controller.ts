@@ -2,10 +2,11 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError, tap } from 'rxjs';
+
 import { Auth, User } from 'src/auth/decorators';
 import { CurrentUser, Role } from 'src/auth/interfaces';
 import { PaginationDto } from 'src/common';
-import { envs, NATS_SERVICE } from 'src/config';
+import { NATS_SERVICE } from 'src/config';
 import { ObjectManipulator } from 'src/helpers';
 import { CreateUserDto, UpdateUserDto } from './dto';
 
@@ -59,7 +60,7 @@ export class UsersController {
       catchError((error) => {
         throw new RpcException(error);
       }),
-      tap(async (users) => await this.cacheManager.set(cacheKey, users, envs.cacheTtl)),
+      tap(async (users) => await this.cacheManager.set(cacheKey, users)),
     );
   }
 
@@ -76,7 +77,7 @@ export class UsersController {
         throw new RpcException(error);
       }),
 
-      tap(async (user) => await this.cacheManager.set(cacheKey, user, envs.cacheTtl)),
+      tap(async (user) => await this.cacheManager.set(cacheKey, user)),
     );
   }
 
@@ -93,7 +94,7 @@ export class UsersController {
         throw new RpcException(error);
       }),
 
-      tap(async (user) => await this.cacheManager.set(cacheKey, user, envs.cacheTtl)),
+      tap(async (user) => await this.cacheManager.set(cacheKey, user)),
     );
   }
 
@@ -110,7 +111,7 @@ export class UsersController {
         throw new RpcException(error);
       }),
 
-      tap(async (user) => await this.cacheManager.set(cacheKey, user, envs.cacheTtl)),
+      tap(async (user) => await this.cacheManager.set(cacheKey, user)),
     );
   }
 
@@ -127,7 +128,7 @@ export class UsersController {
         throw new RpcException(error);
       }),
 
-      tap(async (user) => await this.cacheManager.set(cacheKey, user, envs.cacheTtl)),
+      tap(async (user) => await this.cacheManager.set(cacheKey, user)),
     );
   }
 
@@ -197,7 +198,7 @@ export class UsersController {
     await this.invalidateUserCache(newUser);
     const user = ObjectManipulator.exclude(newUser, ['password']);
 
-    await this.cacheManager.set(`user:${user.id}`, user, envs.cacheTtl);
-    await this.cacheManager.set(`user:${user.username}`, user, envs.cacheTtl);
+    await this.cacheManager.set(`user:${user.id}`, user);
+    await this.cacheManager.set(`user:${user.username}`, user);
   }
 }
