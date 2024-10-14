@@ -20,9 +20,6 @@ COPY . .
 
 RUN npm install -g pnpm
 
-# Generate Prisma client
-RUN pnpm prisma generate
-
 # Build the NestJS application
 RUN pnpm build
 
@@ -44,7 +41,6 @@ WORKDIR /usr/src/app
 # Copy only the necessary files for production
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/prisma ./prisma
 COPY --from=build /usr/src/app/package.json ./package.json
 
 ENV NODE_ENV=production
@@ -53,5 +49,4 @@ USER node
 
 EXPOSE 3000
 
-# Ensure Prisma migrations are applied before starting the app
-CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/main.js"]
+CMD [ "node", "dist/main.js" ]
