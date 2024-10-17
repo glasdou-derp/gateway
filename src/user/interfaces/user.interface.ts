@@ -15,3 +15,9 @@ export interface User {
   deletedAt?: Date;
   isAdmin: boolean;
 }
+
+export interface UserSummary {
+  id: string;
+  username: string;
+  email: string;
+}

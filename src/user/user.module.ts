@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
+import { UsersController } from './user.controller';
 import { NatsModule } from 'src/transports/nats.module';
 import { RedisModule } from 'src/redis/redis.module';
 
