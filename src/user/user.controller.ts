@@ -10,7 +10,7 @@ import { NATS_SERVICE } from 'src/config';
 import { ObjectManipulator } from 'src/helpers';
 import { CreateUserDto, UpdateUserDto } from './dto';
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
   constructor(
     @Inject(NATS_SERVICE) private readonly client: ClientProxy,
@@ -19,7 +19,7 @@ export class UsersController {
 
   @Get('health')
   health() {
-    return this.client.send('users.health', {}).pipe(
+    return this.client.send('user.health', {}).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -36,7 +36,7 @@ export class UsersController {
   @Post()
   @Auth(Role.Admin)
   create(@Body() createUserDto: CreateUserDto, @User() currentUser: CurrentUser) {
-    return this.client.send('users.create', { ...createUserDto, createdById: currentUser.id }).pipe(
+    return this.client.send('user.create', { ...createUserDto, createdById: currentUser.id }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -56,7 +56,7 @@ export class UsersController {
 
     if (cachedUsers) return cachedUsers;
 
-    return this.client.send('users.all', { paginationDto, user }).pipe(
+    return this.client.send('user.all', { paginationDto, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -72,7 +72,7 @@ export class UsersController {
 
     if (cachedUser) return cachedUser;
 
-    return this.client.send('users.find.id', { id, user }).pipe(
+    return this.client.send('user.find.id', { id, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -89,7 +89,7 @@ export class UsersController {
 
     if (cachedUser) return cachedUser;
 
-    return this.client.send('users.find.username', { username, user }).pipe(
+    return this.client.send('user.find.username', { username, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -106,7 +106,7 @@ export class UsersController {
 
     if (cachedMeta) return cachedMeta;
 
-    return this.client.send('users.find.meta', { id, user }).pipe(
+    return this.client.send('user.find.meta', { id, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -123,7 +123,7 @@ export class UsersController {
 
     if (cachedMeta) return cachedMeta;
 
-    return this.client.send('users.find.summary', { id, user }).pipe(
+    return this.client.send('user.find.summary', { id, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -135,7 +135,7 @@ export class UsersController {
   @Patch(':id')
   @Auth(Role.Admin, Role.Moderator)
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto, @User() user: CurrentUser) {
-    return this.client.send('users.update', { updateUserDto: { ...updateUserDto, id }, user }).pipe(
+    return this.client.send('user.update', { updateUserDto: { ...updateUserDto, id }, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -149,7 +149,7 @@ export class UsersController {
   @Delete(':id')
   @Auth(Role.Admin)
   remove(@Param('id', ParseUUIDPipe) id: string, @User() user: CurrentUser) {
-    return this.client.send('users.remove', { id, user }).pipe(
+    return this.client.send('user.remove', { id, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -163,7 +163,7 @@ export class UsersController {
   @Patch(':id/restore')
   @Auth(Role.Admin, Role.Moderator)
   restore(@Param('id', ParseUUIDPipe) id: string, @User() user: CurrentUser) {
-    return this.client.send('users.restore', { id, user }).pipe(
+    return this.client.send('user.restore', { id, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
