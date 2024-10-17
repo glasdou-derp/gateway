@@ -1,5 +1,5 @@
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Logger, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError, tap } from 'rxjs';
 
@@ -12,6 +12,8 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 
 @Controller('user')
 export class UsersController {
+  private readonly logger = new Logger(UsersController.name);
+
   constructor(
     @Inject(NATS_SERVICE) private readonly client: ClientProxy,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
@@ -51,10 +53,14 @@ export class UsersController {
   @Get()
   @Auth(Role.Admin, Role.Moderator)
   async findAll(@Query() paginationDto: PaginationDto, @User() user: CurrentUser) {
+    this.logger.log(`Fetching users: ${JSON.stringify(paginationDto)}, user: ${user.id} - ${user.username}`);
     const cacheKey = this.getUserListCacheKey(paginationDto);
     const cachedUsers = await this.cacheManager.get(cacheKey);
 
-    if (cachedUsers) return cachedUsers;
+    if (cachedUsers) {
+      this.logger.log(`Returning cached response for: ${JSON.stringify(paginationDto)}, user: ${user.id} - ${user.username}`);
+      return cachedUsers;
+    }
 
     return this.client.send('user.all', { paginationDto, user }).pipe(
       catchError((error) => {
@@ -67,10 +73,14 @@ export class UsersController {
   @Get(':id')
   @Auth(Role.Admin, Role.Moderator)
   async findOne(@Param('id', ParseUUIDPipe) id: string, @User() user: CurrentUser) {
+    this.logger.log(`Fetching user: ${id}, user: ${user.id} - ${user.username}`);
     const cacheKey = `user:${id}`;
     const cachedUser = await this.cacheManager.get(cacheKey);
 
-    if (cachedUser) return cachedUser;
+    if (cachedUser) {
+      this.logger.log(`Returning cached user for: ${id}, user: ${user.id} - ${user.username}`);
+      return cachedUser;
+    }
 
     return this.client.send('user.find.id', { id, user }).pipe(
       catchError((error) => {
@@ -84,29 +94,16 @@ export class UsersController {
   @Get('username/:username')
   @Auth(Role.Admin, Role.Moderator)
   async findByUsername(@Param('username') username: string, @User() user: CurrentUser) {
+    this.logger.log(`Fetching user: ${username}, user: ${user.id} - ${user.username}`);
     const cacheKey = `user:${username}`;
     const cachedUser = await this.cacheManager.get(cacheKey);
 
-    if (cachedUser) return cachedUser;
+    if (cachedUser) {
+      this.logger.log(`Returning cached user for: ${username}, user: ${user.id} - ${user.username}`);
+      return cachedUser;
+    }
 
     return this.client.send('user.find.username', { username, user }).pipe(
-      catchError((error) => {
-        throw new RpcException(error);
-      }),
-
-      tap(async (user) => await this.cacheManager.set(cacheKey, user)),
-    );
-  }
-
-  @Get(':id/meta')
-  @Auth(Role.Admin, Role.Moderator)
-  async findMeta(@Param('id', ParseUUIDPipe) id: string, @User() user: CurrentUser) {
-    const cacheKey = `user:meta:${id}`;
-    const cachedMeta = await this.cacheManager.get(cacheKey);
-
-    if (cachedMeta) return cachedMeta;
-
-    return this.client.send('user.find.meta', { id, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -118,10 +115,14 @@ export class UsersController {
   @Get(':id/summary')
   @Auth(Role.Admin, Role.Moderator)
   async findSummary(@Param('id', ParseUUIDPipe) id: string, @User() user: CurrentUser) {
+    this.logger.log(`Fetching user summary: ${id}, user: ${user.id} - ${user.username}`);
     const cacheKey = `user:summary:${id}`;
     const cachedMeta = await this.cacheManager.get(cacheKey);
 
-    if (cachedMeta) return cachedMeta;
+    if (cachedMeta) {
+      this.logger.log(`Returning cached user summary for: ${id}, user: ${user.id} - ${user.username}`);
+      return cachedMeta;
+    }
 
     return this.client.send('user.find.summary', { id, user }).pipe(
       catchError((error) => {
