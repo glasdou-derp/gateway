@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
 import { Auth, CurrentUser, User } from 'src/auth';
@@ -37,6 +37,15 @@ export class CustomerController {
   @Get(':id')
   findOne(@Param('id', ParseCuidPipe) id: string, @User() user: CurrentUser) {
     return this.client.send('customer.id', { id, user }).pipe(
+      catchError((error) => {
+        throw new RpcException(error);
+      }),
+    );
+  }
+
+  @Get('code/:code')
+  findOneByCode(@Param('code', ParseIntPipe) code: number, @User() user: CurrentUser) {
+    return this.client.send('customer.code', { code, user }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
